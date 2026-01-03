@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:fiscal_noir/core/theme/app_theme.dart';
+import 'package:fiscal_noir/core/theme/app_colors.dart';
 import 'package:fiscal_noir/modules/scanner/presentation/cubit/scanner_cubit.dart';
 import 'package:fiscal_noir/modules/scanner/presentation/cubit/scanner_state.dart';
 import 'package:path_provider/path_provider.dart';
@@ -29,7 +29,7 @@ class _ScannerPageState extends State<ScannerPage> {
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
                 content: Text('Receipt Captured: ${state.receipt.id}'),
-                backgroundColor: AppTheme.white,
+                backgroundColor: AppColors.success,
                 duration: const Duration(seconds: 2),
               ),
             );
@@ -41,32 +41,34 @@ class _ScannerPageState extends State<ScannerPage> {
           } else if (state is ScannerError) {
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
-                  content: Text(state.message), backgroundColor: Colors.red),
+                  content: Text(state.message),
+                  backgroundColor: AppColors.error),
             );
           }
         },
         builder: (context, state) {
           if (state is ScannerLoading) {
             return const Scaffold(
-              backgroundColor: AppTheme.black,
+              backgroundColor: AppColors.background,
               body: Center(
-                child: CircularProgressIndicator(color: AppTheme.white),
+                child: CircularProgressIndicator(color: AppColors.primary),
               ),
             );
           }
 
           if (state is ScannerSuccess) {
             return Scaffold(
-              backgroundColor: AppTheme.black,
+              backgroundColor: AppColors.background,
               body: Center(
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     const Icon(Icons.check_circle_outline,
-                        color: AppTheme.white, size: 64),
+                        color: AppColors.primary, size: 64),
                     const SizedBox(height: 16),
                     Text('PROCESSING...',
-                        style: GoogleFonts.inter(color: AppTheme.white)),
+                        style:
+                            GoogleFonts.poppins(color: AppColors.textPrimary)),
                   ],
                 ),
               ),
@@ -75,7 +77,7 @@ class _ScannerPageState extends State<ScannerPage> {
 
           // Camera View
           return Scaffold(
-            backgroundColor: AppTheme.black,
+            backgroundColor: AppColors.background,
             body: CameraAwesomeBuilder.awesome(
               saveConfig: SaveConfig.photo(
                 pathBuilder: (sensors) async {
@@ -88,12 +90,13 @@ class _ScannerPageState extends State<ScannerPage> {
               aspectRatio: CameraAspectRatios.ratio_16_9,
               previewFit: CameraPreviewFit.cover,
               theme: AwesomeTheme(
-                bottomActionsBackgroundColor: AppTheme.black.withOpacity(0.5),
+                bottomActionsBackgroundColor:
+                    AppColors.background.withOpacity(0.5),
                 buttonTheme: AwesomeButtonTheme(
-                  backgroundColor: AppTheme.white,
+                  backgroundColor: AppColors.surface,
                   iconSize: 32,
                   padding: const EdgeInsets.all(16),
-                  foregroundColor: AppTheme.black,
+                  foregroundColor: AppColors.primary,
                 ),
               ),
               onMediaTap: (mediaCapture) {
