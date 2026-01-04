@@ -1,22 +1,33 @@
 import 'package:firebase_core/firebase_core.dart';
+import 'package:flutter/foundation.dart'; // Para kIsWeb
 import 'package:flutter/material.dart';
-import 'package:sentry_flutter/sentry_flutter.dart';
+
 import 'package:fiscal_noir/core/config/injection.dart';
 import 'package:fiscal_noir/modules/auth/presentation/pages/login_page.dart';
 import 'package:fiscal_noir/core/theme/app_theme.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp();
+
+  if (kIsWeb) {
+    await Firebase.initializeApp(
+      options: const FirebaseOptions(
+        apiKey: "AIzaSyBsxboSvYhj16ewspihj1YRd_RFNGGItZ4",
+        authDomain: "fiscalnoir.firebaseapp.com",
+        projectId: "fiscalnoir",
+        storageBucket: "fiscalnoir.firebasestorage.app",
+        messagingSenderId: "836143074856",
+        appId: "1:836143074856:web:322bd3d89ba62be2cb2f1d",
+        measurementId: "G-RGNPGF82L2",
+      ),
+    );
+  } else {
+    // Para Android/iOS usa o arquivo json automático
+    await Firebase.initializeApp();
+  }
   configureDependencies();
 
-  await SentryFlutter.init(
-    (options) {
-      options.dsn = 'https://example@sentry.io/123'; // Placeholder DSN
-      options.tracesSampleRate = 1.0;
-    },
-    appRunner: () => runApp(const FiscalNoirApp()),
-  );
+  runApp(const FiscalNoirApp());
 }
 
 class FiscalNoirApp extends StatelessWidget {

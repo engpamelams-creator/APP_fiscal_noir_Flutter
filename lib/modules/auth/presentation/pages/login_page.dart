@@ -62,7 +62,7 @@ class _LoginPageState extends State<LoginPage> {
             ),
             Positioned.fill(
               child: Container(
-                color: Colors.black.withValues(alpha: 0.7),
+                color: Colors.black.withOpacity(0.7),
               ),
             ),
 
@@ -93,11 +93,10 @@ class _LoginPageState extends State<LoginPage> {
                         crossAxisAlignment: CrossAxisAlignment.stretch,
                         children: [
                           // Logo
-                          const Icon(
-                            Icons.network_check,
-                            size: 64,
-                            color: Colors.white,
-                          ), // Placeholder icon or use new asset if available
+                          Image.asset(
+                            'assets/images/icon.png',
+                            height: 100,
+                          ),
                           const Gap(16),
                           Text(
                             'FISCAL NOIR',
