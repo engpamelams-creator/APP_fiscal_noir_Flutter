@@ -67,8 +67,10 @@ class _ScannerPageState extends State<ScannerPage> {
   }
 
   void _showResultDialog(double total, String? warning, String rawText) {
-    HapticFeedback.mediumImpact();
-    if (warning != null) HapticFeedback.heavyImpact();
+    try {
+      HapticFeedback.mediumImpact();
+      if (warning != null) HapticFeedback.heavyImpact();
+    } catch (_) {}
 
     showDialog(
       context: context,

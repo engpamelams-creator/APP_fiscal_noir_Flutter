@@ -4,11 +4,13 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gap/gap.dart';
 import 'package:get_it/get_it.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:animated_text_kit/animated_text_kit.dart';
 
 import 'package:fiscal_noir/core/theme/app_colors.dart';
 import 'package:fiscal_noir/models/transaction_model.dart';
 import 'package:fiscal_noir/services/firestore_service.dart';
 import 'package:fiscal_noir/modules/dashboard/presentation/cubit/dashboard_cubit.dart';
+import 'package:fiscal_noir/modules/dashboard/presentation/cubit/dashboard_state.dart';
 import 'package:fiscal_noir/modules/dashboard/presentation/pages/transaction_details_page.dart';
 
 class DashboardPage extends StatefulWidget {
@@ -250,22 +252,69 @@ class _DashboardPageState extends State<DashboardPage> {
 
   AppBar _buildAppBar() {
     return AppBar(
-      backgroundColor: AppColors.background,
+      backgroundColor: Colors.transparent,
       elevation: 0,
       leading: IconButton(
         icon: const Icon(Icons.grid_view_rounded, color: AppColors.textPrimary),
         onPressed: () {},
       ),
-      title: Text(
-        'Dashboard',
-        style: GoogleFonts.poppins(
-          fontSize: 18,
-          fontWeight: FontWeight.w600,
-          color: AppColors.textPrimary,
-        ),
+      title: AnimatedTextKit(
+        animatedTexts: [
+          TyperAnimatedText(
+            '> INICIANDO SISTEMA...',
+            textStyle: GoogleFonts.spaceMono(
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
+              color: Colors.white,
+            ),
+            speed: const Duration(milliseconds: 100),
+          ),
+          TyperAnimatedText(
+            '> QG OPERACIONAL',
+            textStyle: GoogleFonts.spaceMono(
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
+              color: Colors.white,
+            ),
+            speed: const Duration(milliseconds: 150),
+          ),
+        ],
+        isRepeatingAnimation: false,
+        totalRepeatCount: 1,
       ),
       centerTitle: true,
       actions: [
+        BlocBuilder<DashboardCubit, DashboardState>(
+          builder: (context, state) {
+            final isStealth =
+                (state is DashboardLoaded) ? state.isStealthMode : false;
+
+            return IconButton(
+              icon: Icon(
+                isStealth ? Icons.visibility : Icons.visibility_off,
+                color: AppColors.textPrimary,
+              ),
+              onPressed: () {
+                context.read<DashboardCubit>().toggleStealthMode();
+
+                ScaffoldMessenger.of(context).clearSnackBars();
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text(
+                      isStealth
+                          ? 'Modo Furtivo: Desativado.'
+                          : 'Modo Furtivo: Ativado. Valores ocultos.',
+                      style: GoogleFonts.spaceMono(color: Colors.black),
+                    ),
+                    backgroundColor: AppColors.primary,
+                    behavior: SnackBarBehavior.floating,
+                    duration: const Duration(seconds: 2),
+                  ),
+                );
+              },
+            );
+          },
+        ),
         IconButton(
           icon: const Icon(Icons.notifications_none_rounded,
               color: AppColors.textPrimary),
@@ -276,140 +325,148 @@ class _DashboardPageState extends State<DashboardPage> {
   }
 
   Widget _buildBalanceHeader() {
-    // Logic for "Munição/Budget Integrity"
-    // Mocking current balance for demo logic, in real app this comes from state
-    final double currentBalance = 1250.00; // Example value
+    return BlocBuilder<DashboardCubit, DashboardState>(
+      builder: (context, state) {
+        // Logic for "Munição/Budget Integrity"
+        // Mocking current balance for demo logic, in real app this comes from state
+        // TODO: Use state.totalAmount when connected to backend data perfectly
+        final double currentBalance = 1250.00; // Example value
 
-    Color statusColor;
-    String statusText;
-    double progressValue;
+        final bool isStealth =
+            (state is DashboardLoaded) ? state.isStealthMode : false;
 
-    if (currentBalance > 500) {
-      statusColor = const Color(0xFF00E676); // Bright Green
-      statusText = "SOB CONTROLE";
-      progressValue = 0.85;
-    } else if (currentBalance >= 100) {
-      statusColor = const Color(0xFFFF9100); // Orange
-      statusText = "ALERTA TÁTICO";
-      progressValue = 0.45;
-    } else {
-      statusColor = const Color(0xFFFF1744); // Red
-      statusText = "PERIGO IMINENTE";
-      progressValue = 0.15;
-    }
+        Color statusColor;
+        String statusText;
+        double progressValue;
 
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 24),
-      margin: const EdgeInsets.symmetric(horizontal: 16),
-      decoration: BoxDecoration(
-        color: const Color(0xFF1E1E1E),
-        borderRadius: BorderRadius.circular(24),
-        border: Border.all(color: Colors.white.withOpacity(0.08)),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.6),
-            blurRadius: 16,
-            offset: const Offset(0, 8),
-          ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Container(
-                padding: const EdgeInsets.all(8),
-                decoration: BoxDecoration(
-                  color: AppColors.primary.withOpacity(0.1),
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: const Icon(Icons.shield_outlined,
-                    color: AppColors.primary, size: 20),
-              ),
-              const Gap(12),
-              Text(
-                'MUNIÇÃO RESTANTE',
-                style: GoogleFonts.poppins(
-                  color: Colors.white70,
-                  fontSize: 14,
-                  fontWeight: FontWeight.w600,
-                  letterSpacing: 1.5,
-                ),
+        if (currentBalance > 500) {
+          statusColor = const Color(0xFF00E676); // Bright Green
+          statusText = "SOB CONTROLE";
+          progressValue = 0.85;
+        } else if (currentBalance >= 100) {
+          statusColor = const Color(0xFFFF9100); // Orange
+          statusText = "ALERTA TÁTICO";
+          progressValue = 0.45;
+        } else {
+          statusColor = const Color(0xFFFF1744); // Red
+          statusText = "PERIGO IMINENTE";
+          progressValue = 0.15;
+        }
+
+        return Container(
+          width: double.infinity,
+          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 24),
+          margin: const EdgeInsets.symmetric(horizontal: 16),
+          decoration: BoxDecoration(
+            color: const Color(0xFF1E1E1E),
+            borderRadius: BorderRadius.circular(24),
+            border: Border.all(color: Colors.white.withOpacity(0.08)),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.6),
+                blurRadius: 16,
+                offset: const Offset(0, 8),
               ),
             ],
           ),
-          const Gap(24),
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.baseline,
-            textBaseline: TextBaseline.alphabetic,
-            children: [
-              Text(
-                'R\$',
-                style: GoogleFonts.spaceGrotesk(
-                  fontSize: 24,
-                  fontWeight: FontWeight.bold,
-                  color: AppColors.primary.withOpacity(0.8),
-                ),
-              ),
-              const Gap(4),
-              Text(
-                '1.250,00',
-                style: GoogleFonts.spaceGrotesk(
-                  fontSize: 42,
-                  fontWeight: FontWeight.bold,
-                  color: AppColors.primary,
-                  shadows: [
-                    BoxShadow(
-                      color: AppColors.primary.withOpacity(0.4),
-                      blurRadius: 12,
-                      offset: const Offset(0, 2),
-                    )
-                  ],
-                ),
-              ),
-            ],
-          ),
-          const Gap(24),
-          Column(
+          child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text(
-                    statusText,
-                    style: GoogleFonts.spaceMono(
-                      color: statusColor,
-                      fontSize: 12,
-                      fontWeight: FontWeight.bold,
-                      letterSpacing: 1,
+                  Container(
+                    padding: const EdgeInsets.all(8),
+                    decoration: BoxDecoration(
+                      color: AppColors.primary.withOpacity(0.1),
+                      borderRadius: BorderRadius.circular(8),
                     ),
+                    child: const Icon(Icons.shield_outlined,
+                        color: AppColors.primary, size: 20),
                   ),
+                  const Gap(12),
                   Text(
-                    '${(progressValue * 100).toInt()}%',
-                    style: GoogleFonts.spaceMono(
-                      color: Colors.white54,
-                      fontSize: 12,
+                    'MUNIÇÃO RESTANTE',
+                    style: GoogleFonts.poppins(
+                      color: Colors.white70,
+                      fontSize: 14,
+                      fontWeight: FontWeight.w600,
+                      letterSpacing: 1.5,
                     ),
                   ),
                 ],
               ),
-              const Gap(10),
-              ClipRRect(
-                borderRadius: BorderRadius.circular(4),
-                child: LinearProgressIndicator(
-                  value: progressValue,
-                  backgroundColor: Colors.white10,
-                  valueColor: AlwaysStoppedAnimation<Color>(statusColor),
-                  minHeight: 6,
-                ),
+              const Gap(24),
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.baseline,
+                textBaseline: TextBaseline.alphabetic,
+                children: [
+                  Text(
+                    'R\$',
+                    style: GoogleFonts.spaceGrotesk(
+                      fontSize: 24,
+                      fontWeight: FontWeight.bold,
+                      color: AppColors.primary.withOpacity(0.8),
+                    ),
+                  ),
+                  const Gap(4),
+                  Text(
+                    isStealth ? '****' : '1.250,00',
+                    style: GoogleFonts.spaceGrotesk(
+                      fontSize: 42,
+                      fontWeight: FontWeight.bold,
+                      color: AppColors.primary,
+                      shadows: [
+                        BoxShadow(
+                          color: AppColors.primary.withOpacity(0.4),
+                          blurRadius: 12,
+                          offset: const Offset(0, 2),
+                        )
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+              const Gap(24),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        statusText,
+                        style: GoogleFonts.spaceMono(
+                          color: statusColor,
+                          fontSize: 12,
+                          fontWeight: FontWeight.bold,
+                          letterSpacing: 1,
+                        ),
+                      ),
+                      Text(
+                        '${(progressValue * 100).toInt()}%',
+                        style: GoogleFonts.spaceMono(
+                          color: Colors.white54,
+                          fontSize: 12,
+                        ),
+                      ),
+                    ],
+                  ),
+                  const Gap(10),
+                  ClipRRect(
+                    borderRadius: BorderRadius.circular(4),
+                    child: LinearProgressIndicator(
+                      value: progressValue,
+                      backgroundColor: Colors.white10,
+                      valueColor: AlwaysStoppedAnimation<Color>(statusColor),
+                      minHeight: 6,
+                    ),
+                  ),
+                ],
               ),
             ],
           ),
-        ],
-      ),
+        );
+      },
     );
   }
 
@@ -435,145 +492,164 @@ class _DashboardPageState extends State<DashboardPage> {
             ],
           ),
           const Gap(20),
-          StreamBuilder<List<TransactionModel>>(
-            stream: FirestoreService().getTransactions(),
-            builder: (context, snapshot) {
-              if (snapshot.connectionState == ConnectionState.waiting) {
-                return const Center(
-                  child: CircularProgressIndicator(color: AppColors.primary),
-                );
-              }
+          BlocBuilder<DashboardCubit, DashboardState>(
+            builder: (context, state) {
+              final isStealth =
+                  (state is DashboardLoaded) ? state.isStealthMode : false;
 
-              if (!snapshot.hasData || snapshot.data!.isEmpty) {
-                return Center(
-                  child: Column(
-                    children: [
-                      const Gap(40),
-                      Icon(Icons.folder_off_outlined,
-                          size: 48, color: Colors.white24),
-                      const Gap(16),
-                      Text(
-                        'Nenhuma evidência arquivada.',
-                        style: GoogleFonts.poppins(color: Colors.white38),
-                      ),
-                    ],
-                  ),
-                );
-              }
-
-              final transactions = snapshot.data!;
-
-              return ListView.separated(
-                shrinkWrap: true,
-                physics: const NeverScrollableScrollPhysics(),
-                itemCount: transactions.length,
-                separatorBuilder: (_, __) => const Gap(16),
-                itemBuilder: (context, index) {
-                  final item = transactions[index];
-
-                  // "Pista" Icon Logic
-                  IconData icon = Icons.fingerprint; // Default "Digital"
-                  if (item.category.toLowerCase().contains('alimentação')) {
-                    icon = Icons.fastfood_outlined;
-                  } else if (item.category
-                      .toLowerCase()
-                      .contains('transporte')) {
-                    icon = Icons.directions_car_outlined;
-                  } else if (item.category.toLowerCase().contains('lazer')) {
-                    icon = Icons.local_activity_outlined;
+              return StreamBuilder<List<TransactionModel>>(
+                stream: FirestoreService().getTransactions(),
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return const Center(
+                      child:
+                          CircularProgressIndicator(color: AppColors.primary),
+                    );
                   }
 
-                  return Container(
-                    decoration: BoxDecoration(
-                      color: const Color(0xFF1E1E1E),
-                      borderRadius: BorderRadius.circular(16),
-                      border: Border.all(color: Colors.white.withOpacity(0.05)),
-                    ),
-                    child: Material(
-                      color: Colors.transparent,
-                      child: InkWell(
-                        borderRadius: BorderRadius.circular(16),
-                        splashColor: AppColors.primary.withOpacity(0.1),
-                        highlightColor: AppColors.primary.withOpacity(0.05),
-                        onTap: () {
-                          HapticFeedback.lightImpact();
-                          Navigator.push(
-                            context,
-                            PageRouteBuilder(
-                              transitionDuration:
-                                  const Duration(milliseconds: 600),
-                              pageBuilder: (_, __, ___) =>
-                                  TransactionDetailsPage(
-                                title: item.title,
-                                amount: 'R\$ ${item.value.toStringAsFixed(2)}',
-                                date: item.date.toString(),
-                                icon: icon,
-                              ),
-                            ),
-                          );
-                        },
-                        child: Padding(
-                          padding: const EdgeInsets.all(16),
-                          child: Row(
-                            children: [
-                              Container(
-                                height: 48,
-                                width: 48,
-                                decoration: BoxDecoration(
-                                  color: Colors.black45,
-                                  borderRadius: BorderRadius.circular(12),
-                                  border: Border.all(color: Colors.white10),
+                  if (!snapshot.hasData || snapshot.data!.isEmpty) {
+                    return Center(
+                      child: Column(
+                        children: [
+                          const Gap(40),
+                          Icon(Icons.folder_off_outlined,
+                              size: 48, color: Colors.white24),
+                          const Gap(16),
+                          Text(
+                            'Nenhuma evidência arquivada.',
+                            style: GoogleFonts.poppins(color: Colors.white38),
+                          ),
+                        ],
+                      ),
+                    );
+                  }
+
+                  final transactions = snapshot.data!;
+
+                  return ListView.separated(
+                    shrinkWrap: true,
+                    physics: const NeverScrollableScrollPhysics(),
+                    itemCount: transactions.length,
+                    separatorBuilder: (_, __) => const Gap(16),
+                    itemBuilder: (context, index) {
+                      final item = transactions[index];
+
+                      // "Pista" Icon Logic
+                      IconData icon = Icons.fingerprint; // Default "Digital"
+                      if (item.category.toLowerCase().contains('alimentação')) {
+                        icon = Icons.fastfood_outlined;
+                      } else if (item.category
+                          .toLowerCase()
+                          .contains('transporte')) {
+                        icon = Icons.directions_car_outlined;
+                      } else if (item.category
+                          .toLowerCase()
+                          .contains('lazer')) {
+                        icon = Icons.local_activity_outlined;
+                      }
+
+                      return Container(
+                        decoration: BoxDecoration(
+                          color: const Color(0xFF1E1E1E),
+                          borderRadius: BorderRadius.circular(16),
+                          border:
+                              Border.all(color: Colors.white.withOpacity(0.05)),
+                        ),
+                        child: Material(
+                          color: Colors.transparent,
+                          child: InkWell(
+                            borderRadius: BorderRadius.circular(16),
+                            splashColor: AppColors.primary.withOpacity(0.1),
+                            highlightColor: AppColors.primary.withOpacity(0.05),
+                            onTap: () {
+                              // HapticFeedback can crash on web during hot restart or if unsupported
+                              try {
+                                HapticFeedback.lightImpact();
+                              } catch (_) {}
+
+                              Navigator.push(
+                                context,
+                                PageRouteBuilder(
+                                  transitionDuration:
+                                      const Duration(milliseconds: 600),
+                                  pageBuilder: (_, __, ___) =>
+                                      TransactionDetailsPage(
+                                    title: item.title,
+                                    amount:
+                                        'R\$ ${item.value.toStringAsFixed(2)}',
+                                    date: item.date.toString(),
+                                    icon: icon,
+                                  ),
                                 ),
-                                child: Icon(
-                                  icon,
-                                  color: AppColors.primary.withOpacity(0.8),
-                                  size: 24,
-                                ),
-                              ),
-                              const Gap(16),
-                              Expanded(
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Hero(
-                                      tag: 'title_${item.title}_$index',
-                                      child: Material(
-                                        color: Colors.transparent,
-                                        child: Text(
-                                          item.title,
-                                          style: GoogleFonts.poppins(
-                                            color: Colors.white,
-                                            fontWeight: FontWeight.w600,
-                                            fontSize: 14,
+                              );
+                            },
+                            child: Padding(
+                              padding: const EdgeInsets.all(16),
+                              child: Row(
+                                children: [
+                                  Container(
+                                    height: 48,
+                                    width: 48,
+                                    decoration: BoxDecoration(
+                                      color: Colors.black45,
+                                      borderRadius: BorderRadius.circular(12),
+                                      border: Border.all(color: Colors.white10),
+                                    ),
+                                    child: Icon(
+                                      icon,
+                                      color: AppColors.primary.withOpacity(0.8),
+                                      size: 24,
+                                    ),
+                                  ),
+                                  const Gap(16),
+                                  Expanded(
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Hero(
+                                          tag: 'title_${item.title}_$index',
+                                          child: Material(
+                                            color: Colors.transparent,
+                                            child: Text(
+                                              item.title,
+                                              style: GoogleFonts.poppins(
+                                                color: Colors.white,
+                                                fontWeight: FontWeight.w600,
+                                                fontSize: 14,
+                                              ),
+                                            ),
                                           ),
                                         ),
-                                      ),
+                                        const Gap(4),
+                                        Text(
+                                          'DETECTADO EM: ${item.date.day}/${item.date.month}/${item.date.year}',
+                                          style: GoogleFonts.spaceMono(
+                                            color: Colors.white38,
+                                            fontSize: 10,
+                                            letterSpacing: 0.5,
+                                          ),
+                                        ),
+                                      ],
                                     ),
-                                    const Gap(4),
-                                    Text(
-                                      'DETECTADO EM: ${item.date.day}/${item.date.month}/${item.date.year}',
-                                      style: GoogleFonts.spaceMono(
-                                        color: Colors.white38,
-                                        fontSize: 10,
-                                        letterSpacing: 0.5,
-                                      ),
+                                  ),
+                                  Text(
+                                    isStealth
+                                        ? '-R\$ ****'
+                                        : '-R\$ ${item.value.toStringAsFixed(2)}',
+                                    style: GoogleFonts.spaceGrotesk(
+                                      color: Colors.white, // High contrast
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 14,
                                     ),
-                                  ],
-                                ),
+                                  ),
+                                ],
                               ),
-                              Text(
-                                '-R\$ ${item.value.toStringAsFixed(2)}',
-                                style: GoogleFonts.spaceGrotesk(
-                                  color: Colors.white, // High contrast
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 14,
-                                ),
-                              ),
-                            ],
+                            ),
                           ),
                         ),
-                      ),
-                    ),
+                      );
+                    },
                   );
                 },
               );

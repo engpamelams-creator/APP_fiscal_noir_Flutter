@@ -113,7 +113,9 @@ class TransactionDetailsPage extends StatelessWidget {
                   ),
                 ),
                 onPressed: () {
-                  HapticFeedback.mediumImpact();
+                  try {
+                    HapticFeedback.mediumImpact();
+                  } catch (_) {}
                 },
                 child: Text(
                   'Validar Nota',

@@ -19,4 +19,11 @@ class DashboardCubit extends Cubit<DashboardState> {
       (expenses) => emit(DashboardLoaded(expenses)),
     );
   }
+
+  void toggleStealthMode() {
+    if (state is DashboardLoaded) {
+      final currentState = state as DashboardLoaded;
+      emit(currentState.copyWith(isStealthMode: !currentState.isStealthMode));
+    }
+  }
 }
