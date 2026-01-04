@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "836143074856",
+    "project_id": "fiscalnoir",
+    "storage_bucket": "fiscalnoir.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:836143074856:android:769c52a43312b302cb2f1d",
+        "android_client_info": {
+          "package_name": "com.example.fiscal_noir"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD9uPH0BKiXQd2i0o9VbG8yivpjkCVnTLg"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
