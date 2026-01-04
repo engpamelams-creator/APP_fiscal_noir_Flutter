@@ -1,4 +1,4 @@
-![app-fiscal](https://github.com/user-attachments/assets/cc074ac7-7e21-435b-b013-b81e4760da66)# 🕵️‍♂️ Fiscal Noir
+# 🕵️‍♂️ Fiscal Noir
 ### *Financial Intelligence Agency*
 
 ![Flutter](https://img.shields.io/badge/Flutter-02569B?style=for-the-badge&logo=flutter&logoColor=white) ![Firebase](https://img.shields.io/badge/Firebase-FFCA28?style=for-the-badge&logo=firebase&logoColor=black) ![Dart](https://img.shields.io/badge/Dart-0175C2?style=for-the-badge&logo=dart&logoColor=white) ![Python Roadmap](https://img.shields.io/badge/Roadmap-Python_AI-3776AB?style=for-the-badge&logo=python&logoColor=white)
