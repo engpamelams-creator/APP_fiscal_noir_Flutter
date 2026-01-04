@@ -14,19 +14,18 @@ class MainPage extends StatefulWidget {
 
 class _MainPageState extends State<MainPage> {
   int _currentIndex = 0;
-  final List<Widget> _pages = [
-    const DashboardPage(),
-    const ScannerPage(),
-    const ProfilePage(),
-  ];
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.background,
       body: IndexedStack(
         index: _currentIndex,
-        children: _pages,
+        children: [
+          const DashboardPage(),
+          // Lazy load ScannerPage to prevent eager camera initialization (and crashes on Web)
+          _currentIndex == 1 ? const ScannerPage() : const SizedBox(),
+          const ProfilePage(),
+        ],
       ),
       bottomNavigationBar: Container(
         decoration: BoxDecoration(

@@ -6,8 +6,11 @@ import 'package:fiscal_noir/core/config/injection.dart';
 import 'package:fiscal_noir/modules/auth/presentation/pages/login_page.dart';
 import 'package:fiscal_noir/core/theme/app_theme.dart';
 
+import 'package:flutter_native_splash/flutter_native_splash.dart';
+
 void main() async {
-  WidgetsFlutterBinding.ensureInitialized();
+  WidgetsBinding widgetsBinding = WidgetsFlutterBinding.ensureInitialized();
+  FlutterNativeSplash.preserve(widgetsBinding: widgetsBinding);
 
   if (kIsWeb) {
     await Firebase.initializeApp(
@@ -30,8 +33,28 @@ void main() async {
   runApp(const FiscalNoirApp());
 }
 
-class FiscalNoirApp extends StatelessWidget {
+class FiscalNoirApp extends StatefulWidget {
   const FiscalNoirApp({super.key});
+
+  @override
+  State<FiscalNoirApp> createState() => _FiscalNoirAppState();
+}
+
+class _FiscalNoirAppState extends State<FiscalNoirApp> {
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _initialization();
+  }
+
+  Future<void> _initialization() async {
+    // Pre-cache the heavy background image to avoid flicker
+    await precacheImage(
+        const AssetImage('assets/images/background.jpg'), context);
+
+    // Remove splash screen once data is ready
+    FlutterNativeSplash.remove();
+  }
 
   @override
   Widget build(BuildContext context) {

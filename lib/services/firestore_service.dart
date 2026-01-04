@@ -27,4 +27,14 @@ class FirestoreService {
       }).toList();
     });
   }
+
+  Future<void> deleteTransaction(String id) async {
+    try {
+      await _transactionsRef.doc(id).delete();
+      debugPrint("Transaction Deleted from Firestore");
+    } catch (e) {
+      debugPrint("Error deleting transaction: $e");
+      rethrow;
+    }
+  }
 }
